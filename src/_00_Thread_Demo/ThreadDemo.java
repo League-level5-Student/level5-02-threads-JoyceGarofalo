@@ -13,14 +13,17 @@ public class ThreadDemo {
 			tammy.setSpeed(10);
 			sammy.setSpeed(10);
 			
+			//one at a time
 			timmy.move(400);
 			tammy.move(400);
 			sammy.move(400);
 			
+			//reset location
 			timmy.moveTo(400, 700);
 			tammy.moveTo(800, 700);
 			sammy.moveTo(1200, 700);
 			
+			//at the same time using threads
 			Thread r1 = new Thread(()->timmy.move(400));
 			Thread r2 = new Thread(()->tammy.move(400));
 			Thread r3 = new Thread(()->sammy.move(400));
