@@ -1,5 +1,7 @@
 package _06_Wait_and_Notify.Practice;
 
+import _06_Wait_and_Notify.Example.ThreadPrinter;
+
 /*
  
 Below are two threads. One thread increments the counter
@@ -17,8 +19,32 @@ printed in order.
 
 public class SynchedSplitLoops {
 	static int counter = 0;
+	private static final Object counterIncreased = new Object();
+
 	
 	public static void main(String[] args) {
+		
+		synchronized(counterIncreased) {
+			Thread t2 = new Thread(() -> {
+				for(int i = 0; i < 100000; i++) {
+					System.out.println(counter);
+				}
+			});
+			counterIncreased.notify();
+			try {
+				counterIncreased.wait(); //pauses execution until another thread calls notify using threadLock
+			} catch (InterruptedException e) {
+				System.out.println("error!");
+			}
+			Thread t1 = new Thread(() -> {
+				for(int i = 0; i < 100000; i++) {
+					counter++;
+				}
+			});
+		}
+		
+		
+		/*
 		Thread t1 = new Thread(() -> {
 			for(int i = 0; i < 100000; i++) {
 				counter++;
@@ -30,6 +56,9 @@ public class SynchedSplitLoops {
 				System.out.println(counter);
 			}
 		});
+		*/
+		Thread t1 = new Thread(new ThreadPrinter());
+		Thread t2 = new Thread(new ThreadPrinter());
 		
 		t1.start();
 		t2.start();
