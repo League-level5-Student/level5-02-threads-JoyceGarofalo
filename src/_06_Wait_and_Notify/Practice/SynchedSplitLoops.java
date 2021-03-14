@@ -23,52 +23,47 @@ public class SynchedSplitLoops {
 
 	
 	public static void main(String[] args) {
+
 		
-		synchronized(counterIncreased) {
 			Thread t2 = new Thread(() -> {
-				for(int i = 0; i < 100000; i++) {
-					System.out.println(counter);
+				synchronized(counterIncreased) {
+					for(int i = 0; i < 100000; i++) {
+						System.out.println(counter);
+						counterIncreased.notify();
+						try {
+							counterIncreased.wait(); //pauses execution until another thread calls notify using threadLock
+						} catch (InterruptedException e) {
+							System.out.println("error!");
+						}
+					}
 				}
 			});
-			counterIncreased.notify();
-			try {
-				counterIncreased.wait(); //pauses execution until another thread calls notify using threadLock
-			} catch (InterruptedException e) {
-				System.out.println("error!");
-			}
+			
 			Thread t1 = new Thread(() -> {
-				for(int i = 0; i < 100000; i++) {
-					counter++;
+				synchronized(counterIncreased) {
+					for(int i = 0; i < 100000; i++) {
+						counter++;
+						counterIncreased.notify();
+						try {
+							counterIncreased.wait(); //pauses execution until another thread calls notify using threadLock
+						} catch (InterruptedException e) {
+							System.out.println("error!");
+						}
+					}
 				}
 			});
+			
+			t1.start();
+			t2.start();
+			
+			try {
+				t1.join();
+				t2.join();
+			} catch (InterruptedException e) {
+				System.err.println("Could not join threads");
+			}
 		}
 		
 		
-		/*
-		Thread t1 = new Thread(() -> {
-			for(int i = 0; i < 100000; i++) {
-				counter++;
-			}
-		});
-		
-		Thread t2 = new Thread(() -> {
-			for(int i = 0; i < 100000; i++) {
-				System.out.println(counter);
-			}
-		});
-		*/
-		Thread t1 = new Thread(new ThreadPrinter());
-		Thread t2 = new Thread(new ThreadPrinter());
-		
-		t1.start();
-		t2.start();
-		
-		try {
-			t1.join();
-			t2.join();
-		} catch (InterruptedException e) {
-			System.err.println("Could not join threads");
-		}
-		
-	}
+	
 }
